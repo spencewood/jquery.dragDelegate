@@ -3,7 +3,9 @@ $.fn.dragDelegate = function(children, options){
 	var $delegate = $(this),
 		$children = $(children, $delegate),
 		defaults = {
-			multiDragClass: ""
+			multiDragClass: "",
+			dragStart: null,
+			dragStop: null
 		},
 		opts = $.extend(defaults, options),
 		pos = {
@@ -35,8 +37,12 @@ $.fn.dragDelegate = function(children, options){
 		pos.y = e.pageY;
 
 	}).mouseup(function(){
-		dragging = false;	
+		opts.delegateDragStop && opts.delegateDragStop();
+		dragging = false;
+	}).mousedown(function(){
+		opts.delegateDragStart && opts.delegateDragStart();	
 	}).delegate(children, "mousedown", function(e){
+		opts.dragStart && opts.dragStart();
 		if(!dragging){
 			$focus = $(e.currentTarget);
 			pos.x = e.pageX;
@@ -44,8 +50,10 @@ $.fn.dragDelegate = function(children, options){
 			dragging = true;
 		}
 		return false;
+	}).delegate(children, "mouseup", function(e){
+		opts.dragStop && opts.dragStop();
 	});
 	
-	$children.css("position", "absolute");
+	return this;
 }
 })(jQuery);
